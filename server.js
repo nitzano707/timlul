@@ -1,3 +1,12 @@
+// הוסף בתחילת server.js
+const fs = require('fs');
+const uploadsDir = './uploads';
+
+if (!fs.existsSync(uploadsDir)){
+    fs.mkdirSync(uploadsDir);
+}
+
+
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');

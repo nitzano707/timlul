@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>תמלול קבצי שמע</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        button {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>תמלול קבצי שמע בעברית</h1>
+        <form id="uploadForm">
+            <div>
+                <label for="audioFile">בחר קובץ שמע (MP3 או WAV):</label>
+                <input type="file" id="audioFile" accept=".mp3,.wav" required>
+            </div>
+            <button type="submit">תמלל קובץ</button>
+        </form>
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            const fileInput = document.getElementById('audioFile');
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/api/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                document.getElementById('result').textContent = data.message;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = 'שגיאה בתמלול הקובץ';
+            }
+        });
+    </script>
+</body>
+</html>

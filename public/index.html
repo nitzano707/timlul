@@ -22,9 +22,23 @@
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 10px;
         }
         button:disabled {
             background: #ccc;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
@@ -36,17 +50,31 @@
                 <label for="audioFile">בחר קובץ שמע (MP3 או WAV):</label>
                 <input type="file" id="audioFile" accept=".mp3,.wav" required>
             </div>
-            <button type="submit">תמלל קובץ</button>
+            <button type="submit" id="submitBtn">תמלל קובץ</button>
         </form>
-        <div id="result" style="margin-top: 20px;"></div>
+        <div id="result"></div>
     </div>
 
     <script>
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+        const form = document.getElementById('uploadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const result = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData();
             const fileInput = document.getElementById('audioFile');
+            
+            if (!fileInput.files[0]) {
+                result.innerHTML = 'אנא בחר קובץ';
+                result.className = 'error';
+                return;
+            }
+
             formData.append('file', fileInput.files[0]);
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'מתמלל...';
+            result.innerHTML = 'מעבד את הקובץ...';
 
             try {
                 const response = await fetch('/api/transcribe', {
@@ -54,10 +82,15 @@
                     body: formData
                 });
                 const data = await response.json();
-                document.getElementById('result').textContent = data.message;
+                result.innerHTML = data.message || 'התמלול הושלם בהצלחה';
+                result.className = 'success';
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('result').textContent = 'שגיאה בתמלול הקובץ';
+                result.innerHTML = 'שגיאה בתמלול הקובץ';
+                result.className = 'error';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'תמלל קובץ';
             }
         });
     </script>
